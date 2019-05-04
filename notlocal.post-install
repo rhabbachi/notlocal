@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+## Initialize a Docksal powered DKAN 7.x site
+##
+## Usage: fin init
+
+#-------------------------- Helper functions --------------------------------
+
+# Console colors
+red='\033[0;31m'
+green='\033[0;32m'
+green_bg='\033[42m'
+yellow='\033[1;33m'
+NC='\033[0m'
+
+echo-red() { echo -e "${red}$1${NC}"; }
+echo-green() { echo -e "${green}$1${NC}"; }
+echo-green-bg() { echo -e "${green_bg}$1${NC}"; }
+echo-yellow() { echo -e "${yellow}$1${NC}"; }
+
+die() {
+  echo-red $1
+  exit 1
+}
+#-------------------------- END: Helper functions --------------------------------
+
+# Abort if anything fails
+set -e
+
+cat $ADDON_ROOT/assets/global.docksal.env >>$HOME/.docksal/docksal.env
+echo-green-bg "Please Update $HOME/.docksal/docksal.env"
+
+secret_admin_htpasswd=$(fin config get SECRET_ADMIN_BASIC_AUTH --global)
+
+if [ ! -z "$secret_admin_htpasswd" ]; then
+  echo-yellow "Admin system password already set. Skipping.."
+else
+  secret_admin_user=$(fin config get SECRET_ADMIN_AUTH_USER --global)
+  [[ -z $secret_admin_user ]] && fin config set SECRET_ADMIN_AUTH_USER="admin" --global
+
+  secret_admin_pass=$(fin config get SECRET_ADMIN_AUTH_PASS --global)
+  [[ -z $secret_admin_pass ]] && fin config set SECRET_ADMIN_AUTH_PASS=$RANDOM --global
+
+  secret_admin_htpasswd=$(docker run --rm -ti xmartlabs/htpasswd $secret_admin_user $secret_admin_pass)
+
+  if [ ! -z "$secret_admin_htpasswd" ]; then
+    fin config set SECRET_ADMIN_BASIC_AUTH=$secret_admin_htpasswd --global
+  else
+    echo-red "Failed to generate Admin system password."
+  fi
+fi
+
+echo "  This is an notlocal post-install script output."
+echo "  Use post-install hook to perform additional tasks after addon installation,"
+echo "  that can not be performed before addon installation."
+sleep 1

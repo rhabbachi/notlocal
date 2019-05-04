@@ -1,0 +1,139 @@
+version: '2.1'
+
+services:
+
+  traefik:
+    image: traefik:1.7-alpine
+    container_name: docksal-vhost-proxy
+    hostname: traefik
+    restart: unless-stopped
+    command:
+      - --logLevel=INFO
+      - -c /dev/null
+      - --api
+      - --docker
+      - --docker.watch
+      - --docker.exposedbydefault=false
+
+      - --entryPoints=Name:https Address::443 TLS
+      - --entryPoints=Name:http Address::80
+      - --defaultentrypoints=http,https
+
+      - --acme
+      - --acme.storage=/acme.json
+      - --acme.email=${SSL_MAIL}
+      - --acme.entrypoint=https
+      - --acme.onhostrule=true
+      - --acme.httpchallenge
+      - --acme.httpchallenge.entrypoint=http
+    networks:
+      - ingress
+    ports:
+      - ${DOCKSAL_VHOST_PROXY_PORT_HTTP:-80}:80
+      - ${DOCKSAL_VHOST_PROXY_PORT_HTTPS:-443}:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # TODO cert mount.
+    labels:
+      system: true
+
+      io.docksal.group: system
+
+      # Expose Traefik dashboard at /_/traefik/ (any domain)
+      traefik.enable: true
+      traefik.backend: traefik-dashboard
+      traefik.frontend.rule: PathPrefixStrip:/_/traefik/
+      # Ensure this rule takes precedence over any other rule by setting a high priority number
+      traefik.frontend.priority: 1000
+      # Internal dashboard port
+      traefik.port: 8080
+      traefik.frontend.auth.basic.users: ${SECRET_ADMIN_BASIC_AUTH}
+    logging:
+      driver: json-file
+      options:
+        # Limit log size
+        max-size: "200k"
+        max-file: "10"
+
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    hostname: portainer
+    restart: unless-stopped
+    command: --no-auth -H unix:///var/run/docker.sock
+    networks:
+      - ingress
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      system: true
+
+      io.docksal.group: system
+
+      # Expose Portainer dashboard at /_/portainer/ (any domain)
+      traefik.enable: true
+      traefik.backend: portainer
+      traefik.docker.network: ingress
+      traefik.frontend.rule: PathPrefixStrip:/_/portainer/
+      # Ensure this rule takes precedence over any other rule by setting a high priority number
+      traefik.frontend.priority: 1000
+      traefik.port: 9000
+      traefik.frontend.auth.basic.users: ${SECRET_ADMIN_BASIC_AUTH}
+    logging:
+      driver: json-file
+      options:
+        # Limit log size
+        max-size: "200k"
+        max-file: "10"
+
+  docksal-ssh-agent:
+    image: ${IMAGE_SSH_AGENT:-docksal/ssh-agent:1.2}
+    container_name: docksal-ssh-agent
+    restart: unless-stopped
+    volumes:
+      - docksal_ssh_agent:/.ssh-agent
+    labels:
+      system: true
+      io.docksal.group: system
+    logging:
+      driver: json-file
+      options:
+        # Limit log size
+        max-size: "200k"
+        max-file: "10"
+
+  docksal-dns:
+    image: ${IMAGE_DNS:-docksal/dns:1.1}
+    container_name: docksal-dns
+    restart: unless-stopped
+    # ports:
+      # - ${DOCKSAL_IP}:53:53/udp
+      # - "53:53/udp"
+    cap_add:
+      - NET_ADMIN
+    dns:
+      - ${DOCKSAL_DNS_UPSTREAM}
+      - 9.9.9.9
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # DNS_IP: $DOCKSAL_IP
+      DNS_DOMAIN: $DOCKSAL_DNS_DOMAIN
+      LOG_QUERIES: $DOCKSAL_DNS_DEBUG
+    labels:
+      system: true
+      io.docksal.group: system
+    logging:
+      driver: json-file
+      options:
+        # Limit log size
+        max-size: "200k"
+        max-file: "10"
+
+networks:
+  ingress:
+    name: ingress
+    driver: bridge
+
+volumes:
+  docksal_ssh_agent:

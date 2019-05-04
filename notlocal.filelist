@@ -1,0 +1,14 @@
+# If you want to include more than a single script file
+# You do it by creating addon.filelist file
+# where all additional files should be described.
+# One line per file, paths relative to current folder.
+
+# Here is additional files
+commands/up
+
+# If you want to use hooks they should also be included here
+# or they won't get downloaded and executed
+notlocal.pre-install
+notlocal.post-install
+notlocal.pre-uninstall
+notlocal.post-uninstall
