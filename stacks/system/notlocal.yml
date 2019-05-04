@@ -21,7 +21,7 @@ services:
 
       - --acme
       - --acme.storage=/acme.json
-      - --acme.email=${SSL_MAIL}
+      - --acme.email=${NOTLOCAL_SSL_MAIL}
       - --acme.entrypoint=https
       - --acme.onhostrule=true
       - --acme.httpchallenge
