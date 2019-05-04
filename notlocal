@@ -32,7 +32,7 @@ echo-yellow() { echo -e "${yellow}$1${NC}"; }
 #-------------------------- END: Helper functions --------------------------------
 
 case "$1" in
-up)
+start)
   $ADDON_ROOT/commands/start
   ;;
 version | -v)
