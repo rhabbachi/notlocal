@@ -18,12 +18,12 @@ echo-green() { echo -e "${green}$1${NC}"; }
 echo-green-bg() { echo -e "${green_bg}$1${NC}"; }
 echo-yellow() { echo -e "${yellow}$1${NC}"; }
 
-die() { echo-red $1; exit 1; }
+die() { echo-red "$@;" exit 1; }
 #-------------------------- END: Helper functions --------------------------------
 
 # Abort if anything fails
 set -e
 
-[ ! -z "$SSL_EMAIL" ] || die "Empty SSL_EMAIL global variable"
+[ -z "$SSL_EMAIL" ] && die "Empty SSL_EMAIL global variable! Please update global docksal.env"
 
 fin dc -p system -f "$ADDON_ROOT/stacks/system/notlocal.yml" up -d
