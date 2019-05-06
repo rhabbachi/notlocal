@@ -2,7 +2,7 @@
 
 ## Initialize a Docksal powered DKAN 7.x site
 ##
-## Usage: fin init
+## Usage: fin notlocal dc
 
 #-------------------------- Helper functions --------------------------------
 
@@ -20,6 +20,9 @@ echo-yellow() { echo -e "${yellow}$1${NC}"; }
 
 die() { echo-red "$@;" exit 1; }
 #-------------------------- END: Helper functions --------------------------------
+# Abort if anything fails
 set -e
 
-fin notlocal dc up -d
+[ -z "$NOTLOCAL_SSL_EMAIL" ] && die "Empty NOTLOCAL_SSL_EMAIL global variable! Please update global docksal.env"
+
+fin dc -p system -f "$ADDON_ROOT/stacks/system/notlocal.yml" $@
