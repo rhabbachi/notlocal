@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+## Update Basic Auth Hash.
+##
+## This is an notlocal addon. TODO
+
+#-------------------------- Helper functions --------------------------------
+
+# Console colors
+red='\033[0;31m'
+green='\033[0;32m'
+green_bg='\033[42m'
+yellow='\033[1;33m'
+NC='\033[0m'
+
+echo-red() { echo -e "${red}$1${NC}"; }
+echo-green() { echo -e "${green}$1${NC}"; }
+echo-green-bg() { echo -e "${green_bg}$1${NC}"; }
+echo-yellow() { echo -e "${yellow}$1${NC}"; }
+
+die() {
+  echo-red $1
+  exit 1
+}
+#-------------------------- END: Helper functions --------------------------------
+
+# Abort if anything fails
+set -e
+
+secret_admin_htpasswd=$(fin config get SECRET_ADMIN_BASIC_AUTH --global)
+
+if [ ! -n "$secret_admin_htpasswd" ]; then
+  echo-yellow "Admin system password already set. Updating.."
+fi
+
+secret_admin_user=$(fin config get SECRET_ADMIN_AUTH_USER --global)
+secret_admin_user=${1:-$secret_admin_user}
+if [ ! -n "${secret_admin_user}" ]; then
+  echo-yellow "SECRET_ADMIN_AUTH_USER not set, defaulting to \"admin\".."
+  secret_admin_user="admin"
+fi
+
+fin config remove SECRET_ADMIN_AUTH_USER --global
+fin config set SECRET_ADMIN_AUTH_USER=$secret_admin_user --global
+
+secret_admin_pass=$(fin config get SECRET_ADMIN_AUTH_PASS --global)
+secret_admin_pass=${2:-$secret_admin_pass}
+echo "secret_admin_pass"
+echo $secret_admin_pass
+if [ ! -n "${secret_admin_pass}" ]; then
+  secret_admin_pass=$RANDOM
+  echo-yellow "SECRET_ADMIN_AUTH_PASS not set, default to $secret_admin_pass.."
+fi
+
+fin config remove SECRET_ADMIN_AUTH_PASS --global
+fin config set SECRET_ADMIN_AUTH_PASS=$secret_admin_pass --global
+
+secret_admin_htpasswd=$(fin notlocal htpasswd $secret_admin_user $secret_admin_pass)
+
+if [ ! -n "${secret_admin_htpasswd}" ]; then
+  die "Failed to generate Admin system password."
+else
+  fin config remove SECRET_ADMIN_BASIC_AUTH --global
+  fin config set SECRET_ADMIN_BASIC_AUTH=$secret_admin_htpasswd --global
+fi

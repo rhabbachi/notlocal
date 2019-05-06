@@ -4,8 +4,7 @@ VERSION="1.0"
 
 ## Use Docksal on not local environment.
 ##
-## This is an notlocal addon. It's purpose is to show sample folder structure
-## and concepts of creating addons.
+## This is an notlocal addon. TODO
 ##
 ##   fin notlocal <command>
 ##
@@ -30,15 +29,28 @@ echo-green-bg() { echo -e "${green_bg}$1${NC}"; }
 echo-yellow() { echo -e "${yellow}$1${NC}"; }
 
 #-------------------------- END: Helper functions --------------------------------
+command=""
+if [ ! -z $1 ]; then
+  command=$1
+  shift
+fi
 
-case "$1" in
-start)
-  $ADDON_ROOT/commands/start
-  ;;
+commands_available=$(find $ADDON_ROOT/commands -type f -printf "%f ")
+commands_available=${commands_available%" "}
+
+case "$command" in
 version | -v)
   echo "$VERSION"
   ;;
-*)
+"" | help)
   fin help notlocal
+  ;;
+*)
+  if printf '%s\n' ${commands_available[@]} | grep -q -P "^$command$"; then
+    $ADDON_ROOT/commands/$command "$@"
+  else
+    echo-yellow "Command $command not found."
+    fin help notlocal
+  fi
   ;;
 esac
