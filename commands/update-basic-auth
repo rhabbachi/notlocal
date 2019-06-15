@@ -45,8 +45,7 @@ fin config set SECRET_ADMIN_AUTH_USER=$secret_admin_user --global
 
 secret_admin_pass=$(fin config get SECRET_ADMIN_AUTH_PASS --global)
 secret_admin_pass=${2:-$secret_admin_pass}
-echo "secret_admin_pass"
-echo $secret_admin_pass
+
 if [ ! -n "${secret_admin_pass}" ]; then
   secret_admin_pass=$RANDOM
   echo-yellow "SECRET_ADMIN_AUTH_PASS not set, default to $secret_admin_pass.."

@@ -22,7 +22,13 @@ die() { echo-red "$@;" exit 1; }
 #-------------------------- END: Helper functions --------------------------------
 # Abort if anything fails
 set -e
+set -x
 
-[ -z "$NOTLOCAL_SSL_EMAIL" ] && die "Empty NOTLOCAL_SSL_EMAIL global variable! Please update global docksal.env"
+notlocal_ssl_email=$(fin config get NOTLOCAL_SSL_EMAIL --global)
+
+if [ -z "${notlocal_ssl_email}" ]; then
+  echo-red "Empty NOTLOCAL_SSL_EMAIL global variable! Please update global docksal.env"
+  exit 1
+fi
 
 fin dc -p system -f "$ADDON_ROOT/stacks/system/notlocal.yml" $@

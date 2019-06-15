@@ -9,8 +9,15 @@ VERSION="1.0"
 ##   fin notlocal <command>
 ##
 ## Usage:
-##   up       Start the system stack
-##   version  Display addon version
+##      start	                Start the system stack
+##      stop	                Stop system stack
+##      reset	                Reset system stack
+##      status	                Get system stack status
+##      logs	                Get system stack logs
+##      dc	                docker-compose
+##      htpasswd                Generate http passwords
+##      update-basic-auth       Update http basic authentication info
+##      version                 Display addon version
 
 # Abort if anything fails
 set -e
