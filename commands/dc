@@ -24,10 +24,10 @@ die() { echo-red "$@;" exit 1; }
 set -e
 set -x
 
-notlocal_ssl_email=$(fin config get NOTLOCAL_SSL_EMAIL --global)
+notlocal_acme_email=$(fin config get NOTLOCAL_ACME_EMAIL --global)
 
-if [ -z "${notlocal_ssl_email}" ]; then
-  echo-red "Empty NOTLOCAL_SSL_EMAIL global variable! Please update global docksal.env"
+if [ -z "${notlocal_acme_email}" ]; then
+  echo-red "Empty NOTLOCAL_ACME_EMAIL global variable! Please update global docksal.env"
   exit 1
 fi
 
