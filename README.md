@@ -1,30 +1,20 @@
-# Example Docksal addon
+# notlocal docksal addon
 
-This is an example of an installable Docksal addon. It's purpose is to show a sample folder structure and concepts of creating installable addons.
+## Table of Contents
++ [About](#about)
++ [Getting Started](#getting_started)
++ [Usage](#usage)
 
-## Name
+## About <a name = "about"></a>
+This is a Docksal Addon that provides a substitude the system stack that helps run Docksal on a VPS.
 
-Addon name is the name of the folder containing it. In this case addon name is `example`.
+This is a global plugin to be installed on the global docksal directory (usually ~/.docksal/).
 
-## Required files
+## Getting Started <a name = "getting_started"></a>
+As far as I can tell, right now there is no way to install docksal addons from
+repositories other then the default https://github.com/docksal/addons.
+To workaround that we just need to clone this repository to the global docksal addon folder.
 
-Each addon should have a main script that is named as the addon. In this case the main script name is `example`. It should be located in the addon root directory.
-
-## Optional files
-
-If there is a need to include more files, then these files should be described in `addon.filelist` one file per line. 
-
-See contents of `example.filelist` for details.
-
-### Hooks
-
-Hooks are special additional files that executed automatically upon certain events. Hook files should be named as `addon`.`hook` and described in `addon.filelist`.
-
-Supported hooks:
-
-- `pre-install` executed before installation, can cancel installation if returns non-zero exit code
-- `post-install` executed after installation
-- `pre-uninstall` executed before uninstallation, can cancel uninstallation if returns non-zero exit code
-- `post-uninstall` executed after uninstallation
-
-Examples of all these hooks can be found here.
+```sh
+$ git clone https://github.com/rhabbachi/notlocal ~/.docksal/addons/notlocal
+```
