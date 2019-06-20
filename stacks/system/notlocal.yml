@@ -60,7 +60,7 @@ services:
     container_name: portainer
     hostname: portainer
     restart: unless-stopped
-    command: --no-auth -H unix:///var/run/docker.sock
+    command: --no-auth -H unix:///var/run/docker.sock --no-analytics
     networks:
       - ingress
     volumes:
