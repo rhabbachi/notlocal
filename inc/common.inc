@@ -1,11 +1,4 @@
-#!/usr/bin/env bash
-
-## Initialize a Docksal powered DKAN 7.x site
-##
-## Usage: fin init
-
 #-------------------------- Helper functions --------------------------------
-
 # Console colors
 red='\033[0;31m'
 green='\033[0;32m'
@@ -18,8 +11,20 @@ echo-green() { echo -e "${green}$1${NC}"; }
 echo-green-bg() { echo -e "${green_bg}$1${NC}"; }
 echo-yellow() { echo -e "${yellow}$1${NC}"; }
 
-die() { echo-red "$@;" exit 1; }
-#-------------------------- END: Helper functions --------------------------------
-set -e
+# Copy a settings file.
+# Skips if the destination file already exists.
+# @param $1 source file
+# @param $2 destination file
+copy_settings_file()
+{
+	local source="$1"
+	local dest="$2"
 
-fin notlocal dc up -d
+	if [[ ! -f $dest ]]; then
+		echo "Copying ${dest}..."
+		cp $source $dest
+	else
+		echo "${dest} already in place."
+	fi
+}
+#-------------------------- END: Helper functions --------------------------------
